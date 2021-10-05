@@ -4,6 +4,9 @@ import { HeroesService } from '../../services/heroes.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap } from "rxjs/operators";
 import { pipe } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmarComponent } from '../../components/confirmar/confirmar.component';
 
 @Component({
   selector: 'app-agregar',
@@ -40,7 +43,9 @@ export class AgregarComponent implements OnInit {
 
   constructor(private heroeService:HeroesService,
               private activatedRoute:ActivatedRoute,
-              private router:Router) { }
+              private router:Router,
+              private snackBar: MatSnackBar,
+              public dialog: MatDialog ) { }
 
   ngOnInit(): void {
     if ( this.router.url.includes('editar')){
@@ -59,16 +64,42 @@ export class AgregarComponent implements OnInit {
 
     if (this.heroe.id){//editar
 
-      this.heroeService.actualizarHeroe(this.heroe).subscribe(heroe=>console.log('Actualizando',heroe))
+      this.heroeService.actualizarHeroe(this.heroe).
+        subscribe(heroe=>this.mostrarSnackBar('Registro actualizado'));
 
     }else{//agregar
       this.heroeService.agregarHeroe(this.heroe)
         .subscribe(heroe=>{         
+          this.mostrarSnackBar('Heroe agregado')
           this.router.navigate(['/heroes/editar',heroe.id]);
       })
     }
-
-    
   }
 
+  borrar(){
+
+    const dialog =  this.dialog.open(ConfirmarComponent,{
+      width:'300px',
+      data:this.heroe
+    });
+    dialog.afterClosed().subscribe(
+      (result)=>{
+        if (result){
+          this.heroeService.borrarHeroe(this.heroe.id!).subscribe(
+            resp=>{
+              this.mostrarSnackBar('Registro eliminado');
+              this.router.navigate(['/heroes']);
+            }
+          )
+        }
+      }
+    ) 
+      
+  }
+
+  mostrarSnackBar(mensaje : string):void{
+    this.snackBar.open(mensaje,'Ok!',{
+      duration:2000
+    });
+  }
 }

@@ -1,11 +1,17 @@
-<h1>Nuevo Héroe <small>{{ heroe.superhero }}</small></h1>
+<h1>
+    {{
+        (heroe.id)
+            ?'Editar'
+            :'Nuevo'
+    }}
+
+    Héroe <small>{{ heroe.superhero }}</small>
+</h1>
 
 <div fxLayout="row" fxLayoutGap="40px" fxLayout.xs="column">
 
     <div fxFlex="50" fxLayout="column">
-        <div fxLayout.xs="column" 
-            fxLayout="row" 
-            fxLayoutGap="20px">
+        <div fxLayout.xs="column" fxLayout="row" fxLayoutGap="20px">
             <mat-form-field fxFlex="100">
                 <mat-label>
                     Super Héroe
@@ -37,9 +43,8 @@
                 Creador
             </mat-label>
             <mat-select required [(ngModel)]="heroe.publisher">
-                <mat-option *ngFor="let publisher of publishers"
-                            [value]="publisher.id">
-                            {{publisher.descripcion}}
+                <mat-option *ngFor="let publisher of publishers" [value]="publisher.id">
+                    {{publisher.descripcion}}
 
                 </mat-option>
             </mat-select>
@@ -50,8 +55,23 @@
             </mat-label>
             <input matInput type="url" required [(ngModel)]="heroe.alt_img">
         </mat-form-field>
-        <button (click)="guardar()"
-            mat-button color="primary">Guardar</button>
+
+        <div fxLayout>
+            <button (click)="guardar()" mat-button color="primary">
+                {{
+                    (heroe.id)
+                        ?'Actualizar'
+                        :'Crear'
+                }}
+            </button>
+            <span class="spacer"></span>
+            <button *ngIf="heroe.id" 
+                (click)="borrar()"
+                mat-button color="warn">
+                <mat-icon>remove</mat-icon> Borrar
+            </button>
+        </div>
+
     </div>
     <div fxFlex="50">
         <img [src]="heroe|imagen" alt="">
